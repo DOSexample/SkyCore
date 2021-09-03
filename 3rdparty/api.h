@@ -27,13 +27,19 @@ using json = nlohmann::json;
 
 #include <rang/rang.hpp>
 
+
+#define WM_NETWORK_MESSAGE_1	(WM_APP+1)
+#define DEBUG() console.log( "%s:%s:%d", strrchr(__FILE__,FILE_SPLIT_FLAG)+1, __FUNCTION__, __LINE__ )
+
 #include <SkyException.h>
 #include <SkyTime.h>
 #include <SkyApplication.h>
 #include <SkyConsole.h>
 #include <SkyBuffer.h>
 
-#include <SkyServer.h>
 #include <SkyUser.h>
+#include <SkyServer.h>
+
+
 
 #endif //INC_API_H

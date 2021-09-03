@@ -3,8 +3,15 @@
 
 class SkyException
 {
-public:
+private:
 	std::string msg;
+public:
+	SkyException( int line = __LINE__, const char* file = __FILE__ )
+	{
+		msg = file;
+		msg += ":";
+		msg += std::to_string( line );
+	}
 	SkyException( const char* fmt, ... )
 	{
 		char tempStr[2048];

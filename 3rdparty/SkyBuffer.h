@@ -4,38 +4,40 @@
 class SkyBuffer
 {
 private:
-	DWORD pos;
 	DWORD size;
 	BYTE* data;
 public:
 
-	SkyBuffer( int size, const char* file = __FILE__, int line = __LINE__ )
+	SkyBuffer()
 	{
-		this->pos = 0;
-		this->size = size;
-		this->data = (BYTE*)GlobalAlloc( GMEM_FIXED, size );
-		//if( this->data == NULL )
-		{
-			throw SkyException( "%s -> %s:%d", __PRETTY_FUNCTION__, file, line );
-		}
 	}
 	~SkyBuffer()
 	{
 		if( this->data )
 		{
-			GlobalFree( data );
+			GlobalFree( this->data );
 		}
 	}
 
-	DWORD TotalSize() const { return size; }
+	void Init( int size, const char* file = __FILE__, int line = __LINE__ )
+	{
+		this->size = 0;
+		this->data = (BYTE*)GlobalAlloc( GMEM_FIXED, size );
+		if( this->data == NULL )
+		{
+			throw SkyException( "%s -> %s:%d", __PRETTY_FUNCTION__, file, line );
+		}
+	}
 
-	DWORD GetPosition() const { return pos; }
+	DWORD Size() const { return this->size; }
 	
-	void IncreasePos( int pos ) { this->pos += pos; }
+	void IncreasePos( int size ) { this->size += size; }
+
+	BYTE* Get() { return data; }
 
 	SkyBuffer& Header( int value )
 	{
-		this->pos = 0;
+		this->size = 0;
 		this->data[0] = value;
 		this->IncreasePos( 1 );
 		return *this;
@@ -45,7 +47,7 @@ public:
 	SkyBuffer& Pack( T value )
 	{
 		int s = sizeof(T);
-		CopyMemory( &this->data[this->pos], &value, s );
+		CopyMemory( &this->data[this->size], &value, s );
 		this->IncreasePos( s );
 		return *this;
 	}
@@ -53,7 +55,7 @@ public:
 	template<typename T>
 	SkyBuffer& Pack( T* value, int size )
 	{
-		CopyMemory( &this->data[this->pos], value, size );
+		CopyMemory( &this->data[this->size], value, size );
 		this->IncreasePos( size );
 		return *this;
 	}
@@ -61,10 +63,17 @@ public:
 	template<typename T>
 	SkyBuffer& Pack( T** value, int size )
 	{
-		CopyMemory( &this->data[this->pos], value, size );
+		CopyMemory( &this->data[this->size], value, size );
 		this->IncreasePos( size );
 		return *this;
 	}
+
+	void Move( int position, int moveSize )
+	{
+		MoveMemory( data, &data[position], moveSize );
+		this->size -= moveSize;
+	}
+	void SetPosition( int position ) { this->size = position; }
 };
 
 #endif //SC_MEMORY_H

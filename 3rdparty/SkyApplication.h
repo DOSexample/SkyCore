@@ -1,14 +1,14 @@
 #ifndef SC_APPLICATION_H
 #define SC_APPLICATION_H
 
+extern void Logic();
+
 class SkyApplication
 {
 public:
-	std::function<void()> logic = NULL;
 	HWND hWnd = NULL;
-	void Init( std::string name, WNDPROC proc, std::function<void()> logic )
+	void Init( std::string name, WNDPROC proc )
 	{
-		this->logic = logic;
 		WNDCLASSEX wCls = { sizeof(WNDCLASSEX), 0, proc, 0, 0, NULL, 0, 0, 0, 0, name.c_str(), 0 };
 		RegisterClassEx( &wCls );
 		this->hWnd = CreateWindowEx( 0, name.c_str(), name.c_str(), WS_DISABLED, 0, 0, 0, 0, HWND_DESKTOP, NULL, NULL, NULL );
@@ -26,8 +26,7 @@ public:
 				TranslateMessage( &nMss );
 				DispatchMessage( &nMss );
 			}
-			if ( logic )
-				logic();
+			Logic();
 		}
 		return (int)nMss.wParam;
 	}
