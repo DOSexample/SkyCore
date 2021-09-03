@@ -147,24 +147,4 @@ public:
 typedef std::vector<SkyUser*> SkyUserMap;
 extern SkyUserMap mUSER;
 
-void InitSkyUser( int numOfUser )
-{
-	mUSER.clear();
-	for ( int i = 0; i < numOfUser; i++ )
-	{
-		SkyUser* t = new SkyUser();
-		if( !t )
-			throw SkyException();
-		mUSER.push_back( t );
-	}
-	if ( (int)mUSER.size() != numOfUser )
-	{
-		throw SkyException( "SkyUserMap:: error size( (%d) != (%d) )", mUSER.size(), numOfUser );
-	}
-	for ( int i = 0; i < numOfUser; i++ )
-	{
-		mUSER[i]->Init( i, 1000, 1000 );
-	}
-}
-
 #endif //SKYUSER_H

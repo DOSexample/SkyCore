@@ -8,7 +8,7 @@ private:
 	BYTE* data;
 public:
 
-	SkyBuffer()
+	SkyBuffer() : data(0), size(0)
 	{
 	}
 	~SkyBuffer()

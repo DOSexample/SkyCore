@@ -1,13 +1,6 @@
 #ifndef SC_DATETIME_H
 #define SC_DATETIME_H
 
-#ifndef USE_TICK64
-#define USE_TICK64
-typedef DWORD64 TIMETICK;
-#else
-typedef DWORD TIMETICK;
-#endif
-
 static int CUSTOM_YEAR;
 static int CUSTOM_MONTH;
 static int CUSTOM_DAY;

@@ -2,20 +2,18 @@
 #define SC_APPLICATION_H
 
 extern void Logic();
-
 class SkyApplication
 {
 public:
-	HWND hWnd = NULL;
-	void Init( std::string name, WNDPROC proc )
+	void Init( SERVER_INFO& mSERVER_INFO, std::string name, WNDPROC proc )
 	{
-		WNDCLASSEX wCls = { sizeof(WNDCLASSEX), 0, proc, 0, 0, NULL, 0, 0, 0, 0, name.c_str(), 0 };
-		RegisterClassEx( &wCls );
-		this->hWnd = CreateWindowEx( 0, name.c_str(), name.c_str(), WS_DISABLED, 0, 0, 0, 0, HWND_DESKTOP, NULL, NULL, NULL );
-		if( !this->hWnd )
+		mSERVER_INFO.wCls = { sizeof(WNDCLASSEX), 0, proc, 0, 0, NULL, 0, 0, 0, 0, name.c_str(), 0 };
+		RegisterClassEx( &mSERVER_INFO.wCls );
+		mSERVER_INFO.hWnd = CreateWindowEx( 0, name.c_str(), name.c_str(), WS_DISABLED, 0, 0, 0, 0, HWND_DESKTOP, NULL, NULL, NULL );
+		if( !mSERVER_INFO.hWnd )
 			throw "!CreateWindowEx()";
 	}
-	int Run()
+	int Run( SERVER_INFO& mSERVER_INFO )
 	{
 		MSG nMss;
 		HACCEL hAccelTable = LoadAccelerators( NULL, "" );
@@ -28,6 +26,7 @@ public:
 			}
 			Logic();
 		}
+		UnregisterClass( mSERVER_INFO.wCls.lpszClassName, mSERVER_INFO.wCls.hInstance );
 		return (int)nMss.wParam;
 	}
 };

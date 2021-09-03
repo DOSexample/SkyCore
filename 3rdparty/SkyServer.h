@@ -16,45 +16,89 @@ public:
 		ZeroMemory( &mWsaData, sizeof( WSADATA ) );
 		return ::WSAStartup( MAKEWORD( 2, 2 ), &mWsaData ) == 0;
 	}
-	BOOL Init( int type, int protocol, HWND hWnd, const char* ip, u_short port, u_int async_message = WM_NETWORK_MESSAGE_1, long lEvent = FD_ACCEPT, long backlog = 128 )
+	BOOL Init( long backlog = 128 )
 	{
+		HWND hWnd = mSERVER_INFO.hWnd;
+		const char* ip = mSERVER_INFO.IP[MAIN_SERVER].c_str();
+		u_short port = (u_short)mSERVER_INFO.Port[MAIN_SERVER];
+		int type = mSERVER_INFO.Type[MAIN_SERVER];
 		SOCKADDR_IN mAddress = {};
 		
 		if ( !WSAStartup() )
 		{
-			throw SkyException();
+			throw TSkyException();
 		}
-		mSocket = ::socket( AF_INET, type, protocol );
+		mSocket = ::socket( AF_INET, type, IPPROTO_IP );
 		if ( mSocket == INVALID_SOCKET )
 		{
-			throw SkyException();
+			throw TSkyException();
 		}
 		if ( ( type == SOCK_STREAM && !SetSocket( mSocket, TRUE ) ) )
 		{
-			throw SkyException();
+			throw TSkyException();
 		}
-		mAddress.sin_family = (ADDRESS_FAMILY)AF_INET;
+		mAddress.sin_family = AF_INET;
 		mAddress.sin_addr.s_addr = inet_addr( ip );
 		mAddress.sin_port = htons( port );
 		if ( ::bind( mSocket, (LPSOCKADDR) &mAddress, sizeof( mAddress ) ) == INVALID_SOCKET )
 		{
-			throw SkyException();
+			throw TSkyException();
 		}
 		if ( ( type == SOCK_STREAM ) && ( ::listen( mSocket, backlog ) == INVALID_SOCKET ) )
 		{
-			throw SkyException();
+			throw TSkyException();
 		}
-		if( ( ::WSAAsyncSelect( mSocket, hWnd, async_message, lEvent ) == INVALID_SOCKET ) )
+		if ( type == SOCK_STREAM )
 		{
-			throw SkyException();
+			if( ( ::WSAAsyncSelect( mSocket, hWnd, WM_NETWORK_MESSAGE_1, FD_ACCEPT ) == INVALID_SOCKET ) )
+			{
+				throw TSkyException();
+			}
 		}
+		else//log server
+		{
+			if( ( ::WSAAsyncSelect( mSocket, hWnd, WM_NETWORK_MESSAGE_1, FD_READ ) == INVALID_SOCKET ) )
+			{
+				throw TSkyException();
+			}
+		}
+		
+		mUSER.clear();
+		for ( int i = 0; i < mSERVER_INFO.mMaxUserNum; i++ )
+		{
+			SkyUser* t = new SkyUser();
+			if( !t )
+				throw TSkyException();
+			mUSER.push_back( t );
+		}
+		if ( (int)mUSER.size() != mSERVER_INFO.mMaxUserNum )
+		{
+			throw SkyException( "SkyUserMap:: error size( (%d) != (%d) )", mUSER.size(), mSERVER_INFO.mMaxUserNum );
+		}
+		for ( int i = 0; i < mSERVER_INFO.mMaxUserNum; i++ )
+		{
+			mUSER[i]->Init( i, 1000, 1000 );
+		}
+
+		mSERVER_INFO.mBaseTickCountForLogic = SkyTime::GetTickCount();
+		mSERVER_INFO.mPostTickCountForLogic = mSERVER_INFO.mBaseTickCountForLogic;
+		if( !SetTimer( mSERVER_INFO.hWnd, 1, (UINT)mSERVER_INFO.mTimeLogic, NULL ) )
+			throw TSkyException();
+
 		console.log( "Server is running on %s://%s:%d", SOCK_STREAM ? "tcp" : "udp", ip, port );
-		return mSocket;
+		return TRUE;
 	}
 
-	LRESULT Free( HWND hWnd )
+	LRESULT Free()
 	{
-		KillTimer( hWnd, 1 );
+		for ( auto it : mUSER )
+		{
+			it->Quit();
+		}
+		mUSER.clear();
+
+		closesocket( mSocket );
+		KillTimer( mSERVER_INFO.hWnd, 1 );
 		PostQuitMessage( 0 );
 		return 0;
 	}
@@ -112,33 +156,26 @@ public:
 		return TRUE;
 	}
 	
-
-	void SetLogic( HWND hWnd, TIMETICK& mBaseTickCountForLogic, TIMETICK& mPostTickCountForLogic, BOOL& mCheckLogicFlag, UINT_PTR nIDEvent, TIMERPROC lpTimerFunc, UINT uElapse )
-	{
-		mBaseTickCountForLogic = SkyTime::GetTickCount();
-		mPostTickCountForLogic = mBaseTickCountForLogic;
-		if( !SetTimer( hWnd, nIDEvent, uElapse, lpTimerFunc ) )
-			throw SkyException();
-	}
-
-	void OnLogic( BOOL& mCheckLogicFlag )
-	{
-		if ( mCheckLogicFlag )
-		{
-			//mGAME.Logic( ( (float)mSERVER_INFO.mTimeLogic * 0.001f ) );
-			mCheckLogicFlag = FALSE;
-		}
-	}
-	void OnTimer( TIMETICK& mBaseTickCountForLogic, TIMETICK& mPostTickCountForLogic, BOOL& mCheckLogicFlag )
+	void OnLogic()
 	{
 		DEBUG();
-		mBaseTickCountForLogic = SkyTime::GetTickCount();
-		//if ( ( mBaseTickCountForLogic - mPostTickCountForLogic ) >= (TIMETICK)mSERVER_INFO.mTimeLogic )
+		if ( mSERVER_INFO.mCheckLogicFlag )
 		{
-			mPostTickCountForLogic = mBaseTickCountForLogic;
-			mCheckLogicFlag = TRUE;
+			//mGAME.Logic( ( (float)mSERVER_INFO.mTimeLogic * 0.001f ) );
+			mSERVER_INFO.mCheckLogicFlag = FALSE;
+		}
+	}
+	LRESULT OnTimer()
+	{
+		DEBUG();
+		mSERVER_INFO.mBaseTickCountForLogic = SkyTime::GetTickCount();
+		if ( ( mSERVER_INFO.mBaseTickCountForLogic - mSERVER_INFO.mPostTickCountForLogic ) >= mSERVER_INFO.mTimeLogic )
+		{
+			mSERVER_INFO.mPostTickCountForLogic = mSERVER_INFO.mBaseTickCountForLogic;
+			mSERVER_INFO.mCheckLogicFlag = TRUE;
 		}
 		Logic();
+		return 0;
 	}
 
 	LRESULT OnProc( HWND hWnd, WPARAM wPrm, LPARAM lPrm )
@@ -215,6 +252,13 @@ public:
 	void OnRecv( SOCKET tSocket )
 	{
 		DEBUG();
+
+		if ( mSERVER_INFO.Type[MAIN_SERVER] == SOCK_DGRAM )//log server
+		{
+			OnLogRecv( tSocket );
+			return;
+		}
+
 		SkyUser* tUSER = NULL;
 		int tRecvSizeFromUser;
 		DWORD i;
@@ -274,6 +318,10 @@ public:
 		}
 	}
 
+	void OnLogRecv( SOCKET tSocket )
+	{
+
+	}
 };
 
 #endif //SKYSERVER_H

@@ -1,12 +1,13 @@
 #ifndef SC_EXCEPTION_H
 #define SC_EXCEPTION_H
 
+#define TSkyException() SkyException( __FILE__, __LINE__  )
 class SkyException
 {
 private:
 	std::string msg;
 public:
-	SkyException( int line = __LINE__, const char* file = __FILE__ )
+	SkyException( const char* file, int line )
 	{
 		msg = file;
 		msg += ":";
@@ -24,6 +25,15 @@ public:
 	~SkyException() {}
 
 	const char* what() { return msg.c_str(); }
+	void set( const char* fmt, ...  )
+	{
+		char tempStr[2048];
+		va_list args;
+		va_start( args, fmt );
+		vsprintf( tempStr, fmt, args );
+		va_end( args );
+		msg = tempStr;
+	}
 };
 
 #endif //SC_EXCEPTION_H
