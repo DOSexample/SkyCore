@@ -77,7 +77,7 @@ public:
 		}
 		for ( int i = 0; i < mSERVER_INFO.mMaxUserNum; i++ )
 		{
-			mUSER[i]->Init( i, 1000, 1000 );
+			mUSER[i]->Init( i, mSERVER_INFO.mMaxSendSize, mSERVER_INFO.mMaxRecvSize );
 		}
 
 		mSERVER_INFO.mBaseTickCountForLogic = SkyTime::GetTickCount();

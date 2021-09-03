@@ -57,7 +57,14 @@ typedef struct {
 	int Type[SERVER_TYPE_NUM];
 	int Logic[SERVER_TYPE_NUM];
 	int MaxUser[SERVER_TYPE_NUM];
+	int MaxRecv[SERVER_TYPE_NUM];
+	int MaxSend[SERVER_TYPE_NUM];
+	int MaxTransfer[SERVER_TYPE_NUM];
+
 	int mMaxUserNum;
+	int mMaxRecvSize;
+	int mMaxSendSize;
+	int mMaxTransferSize;
 
 	WNDCLASSEX wCls;
 	HWND hWnd;

@@ -1,10 +1,23 @@
 #include <api.h>
 
+
+#define DEFAULT_LOAD( name, name2 ) \
+mSERVER_INFO.IP[##name##_SERVER] = j[#name2##"_server"]["ip"].get<std::string>(); \
+mSERVER_INFO.Port[##name##_SERVER] = j[#name2##"_server"]["port"].get<int>(); \
+mSERVER_INFO.Type[##name##_SERVER] = IsTCP( toupper( j[#name2##"_server"]["type"].get<std::string>() ) ); \
+mSERVER_INFO.Logic[##name##_SERVER] = j[#name2##"_server"]["logic"].get<int>(); \
+mSERVER_INFO.MaxRecv[##name##_SERVER] = j[#name2##"_server"]["maxrecv"].get<int>(); \
+mSERVER_INFO.MaxSend[##name##_SERVER] = j[#name2##"_server"]["maxsend"].get<int>(); \
+mSERVER_INFO.MaxTransfer[##name##_SERVER] = j[#name2##"_server"]["maxtransfer"].get<int>();
+
 #define SWAP_INFO( name ) \
 mSERVER_INFO.IP[MAIN_SERVER] = mSERVER_INFO.IP[##name##_SERVER]; \
 mSERVER_INFO.Port[MAIN_SERVER] = mSERVER_INFO.Port[##name##_SERVER]; \
 mSERVER_INFO.Type[MAIN_SERVER] = mSERVER_INFO.Type[##name##_SERVER]; \
-mSERVER_INFO.mTimeLogic = (TIMETICK)mSERVER_INFO.Logic[##name##_SERVER];
+mSERVER_INFO.mTimeLogic = (TIMETICK)mSERVER_INFO.Logic[##name##_SERVER]; \
+mSERVER_INFO.mMaxRecvSize = mSERVER_INFO.MaxRecv[##name##_SERVER]; \
+mSERVER_INFO.mMaxSendSize = mSERVER_INFO.MaxSend[##name##_SERVER]; \
+mSERVER_INFO.mMaxTransferSize = mSERVER_INFO.MaxTransfer[##name##_SERVER];
 
 SERVER_INFO mSERVER_INFO;
 SkyApplication mAPP;
@@ -64,12 +77,6 @@ int IsTCP( std::string str )
 	return SOCK_DGRAM;
 }
 
-#define DEFAULT_LOAD( name, name2 ) \
-	mSERVER_INFO.IP[##name##_SERVER] = j[#name2##"_server"]["ip"].get<std::string>(); \
-	mSERVER_INFO.Port[##name##_SERVER] = j[#name2##"_server"]["port"].get<int>(); \
-	mSERVER_INFO.Type[##name##_SERVER] = IsTCP( toupper( j[#name2##"_server"]["type"].get<std::string>() ) ); \
-	mSERVER_INFO.Logic[##name##_SERVER] = j[#name2##"_server"]["logic"].get<int>();
-
 void LoadConfig( const char* path, SERVER_INFO &mSERVER_INFO )
 {
 	std::string str;
@@ -89,10 +96,9 @@ void LoadConfig( const char* path, SERVER_INFO &mSERVER_INFO )
 	}
 	std::getline( std::ifstream( path ), str, '\0' );
 	console.log( str.c_str() );
-	json j = json::parse( str );
-	
 	try
 	{
+		json j = json::parse( str );
 		DEFAULT_LOAD( LOG, log );
 		DEFAULT_LOAD( CENTER, center );
 		DEFAULT_LOAD( EXTRA, extra );

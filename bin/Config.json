@@ -6,7 +6,7 @@
 		"logic": 10000,
 		"maxuser": 0,
 		"maxrecv": 20480,
-		"maxsend": 409600,
+		"maxsend": 40960,
 		"maxtransfer": 100000
 	},
 	"center_server": {
@@ -16,7 +16,7 @@
 		"logic": 10000,
 		"maxuser": 350,
 		"maxrecv": 20480,
-		"maxsend": 409600,
+		"maxsend": 40960,
 		"maxtransfer": 100000
 	},
 	"extra_server": {
@@ -26,7 +26,7 @@
 		"logic": 1000,
 		"maxuser": 350,
 		"maxrecv": 20480,
-		"maxsend": 409600,
+		"maxsend": 40960,
 		"maxtransfer": 100000
 	},
 	"playuser_server": {
@@ -36,7 +36,7 @@
 		"logic": 3000,
 		"maxuser": 350,
 		"maxrecv": 20480,
-		"maxsend": 409600,
+		"maxsend": 40960,
 		"maxtransfer": 100000
 	},
 	"login_server": {
@@ -46,7 +46,7 @@
 		"logic": 5000,
 		"maxuser": 1000,
 		"maxrecv": 20480,
-		"maxsend": 409600,
+		"maxsend": 40960,
 		"maxtransfer": 100000
 	},
 	"zone_server": {
