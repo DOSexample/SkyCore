@@ -1,6 +1,6 @@
 #include <api.h>
 
-#define SWARP_INFO( name ) \
+#define SWAP_INFO( name ) \
 mSERVER_INFO.IP[MAIN_SERVER] = mSERVER_INFO.IP[##name##_SERVER]; \
 mSERVER_INFO.Port[MAIN_SERVER] = mSERVER_INFO.Port[##name##_SERVER]; \
 mSERVER_INFO.Type[MAIN_SERVER] = mSERVER_INFO.Type[##name##_SERVER]; \
@@ -109,6 +109,8 @@ void LoadConfig( const char* path, SERVER_INFO &mSERVER_INFO )
 
 int main( int argc, char **argv )
 {
+	std::string appname = "";
+
 	console.init( ConsoleHandler );
 
 	//if( argc < 2 )
@@ -121,41 +123,44 @@ int main( int argc, char **argv )
 	try
 	{
 		LoadConfig( "./Config.json", mSERVER_INFO );
-
-
-		//mServer.Init( SOMAXCONN );//TCP
-		//mServer.Init( SOMAXCONN );//UDP
 		
 		#ifdef SKYCORE_LOG
-		std::string name = "LogServer";
-		//if( !strcmp( argv[1], "log"  ) )
-			SWARP_INFO( LOG );
+		appname = "LogServer";
+		SWAP_INFO( LOG );
+		#endif
+		
+		#ifdef SKYCORE_CENTER
+		appname = "CenterServer";
+		SWAP_INFO( CENTER );
+		#endif
+		
+		#ifdef SKYCORE_EXTRA
+		appname = "ExtraServer";
+		SWAP_INFO( EXTRA );
 		#endif
 
 		#ifdef SKYCORE_LOGIN
-		std::string name =  "LoginServer";
-		//if( !strcmp( argv[1], "login"  ) )
-			SWARP_INFO( LOGIN );
+		appname =  "LoginServer";
+		SWAP_INFO( LOGIN );
 		#endif
-
-		//else if( !strcmp( argv[1], "center"  ) )
-		//	SWARP_INFO( CENTER );
-		//else if( !strcmp( argv[1], "extra"  ) )
-		//	SWARP_INFO( EXTRA );
-		//else if( !strcmp( argv[1], "playuser"  ) )
-		//	SWARP_INFO( PLAYUSER );
-		//else if( !strcmp( argv[1], "zone"  ) )
-		//{
+		
+		#ifdef SKYCORE_PLAYUSER
+		appname = "PlayUserServer";
+		SWAP_INFO( PLAYUSER );
+		#endif
+		
+		#ifdef SKYCORE_ZONE
 		//	if( argc < 3 )
 		//	{
 		//		console.error( "please run with arguments zone and zonnumber\n ex. zone 1 = run zone number 1"  );
 		//		return 0;
 		//	}
-		//	SWARP_INFO( ZONE );
-		//}
+		appname = "ZoneServer";
+		SWAP_INFO( ZONE );
+		#endif
 
-		mAPP.Init( mSERVER_INFO, name, (WNDPROC)WndProc );
-		gServer.Init();
+		mAPP.Init( mSERVER_INFO, appname, (WNDPROC)WndProc );
+		gServer.Init();//SOMAXCONN
 		return mAPP.Run( mSERVER_INFO );
 	}
 	catch ( SkyException& e )

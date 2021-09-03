@@ -1,5 +1,5 @@
-#ifndef SC_MEMORY_H
-#define SC_MEMORY_H
+#ifndef SC_BUFFER_H
+#define SC_BUFFER_H
 
 class SkyBuffer
 {
@@ -76,4 +76,4 @@ public:
 	void SetPosition( int position ) { this->size = position; }
 };
 
-#endif //SC_MEMORY_H
+#endif //SC_BUFFER_H

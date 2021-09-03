@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ZoneServer.cpp">
+    <ClCompile Include="..\3rdparty\01_Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
