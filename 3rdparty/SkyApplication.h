@@ -1,18 +1,18 @@
 #ifndef SC_APPLICATION_H
 #define SC_APPLICATION_H
 
-class SkyApp
+class SkyApplication
 {
 public:
-	std::function<void()> logic;
-	HWND hWnd;
+	std::function<void()> logic = NULL;
+	HWND hWnd = NULL;
 	void Init( std::string name, WNDPROC proc, std::function<void()> logic )
 	{
 		this->logic = logic;
 		WNDCLASSEX wCls = { sizeof(WNDCLASSEX), 0, proc, 0, 0, NULL, 0, 0, 0, 0, name.c_str(), 0 };
 		RegisterClassEx( &wCls );
-		hWnd = CreateWindowEx( 0, name.c_str(), name.c_str(), WS_DISABLED, 0, 0, 0, 0, HWND_DESKTOP, NULL, NULL, NULL );
-		if( !hWnd )
+		this->hWnd = CreateWindowEx( 0, name.c_str(), name.c_str(), WS_DISABLED, 0, 0, 0, 0, HWND_DESKTOP, NULL, NULL, NULL );
+		if( !this->hWnd )
 			throw "!CreateWindowEx()";
 	}
 	int Run()

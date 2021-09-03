@@ -18,13 +18,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inc", "Inc", "{A6823FCF-815D-407E-8423-FCEC9A576D32}"
 	ProjectSection(SolutionItems) = preProject
 		3rdparty\api.h = 3rdparty\api.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SkyCommon", "SkyCommon", "{32AE8872-A63F-4E19-AAA2-FD8DA8D4115D}"
-	ProjectSection(SolutionItems) = preProject
-		3rdparty\SkyCommon\Application.h = 3rdparty\SkyCommon\Application.h
-		3rdparty\SkyCommon\Console.h = 3rdparty\SkyCommon\Console.h
-		3rdparty\SkyCommon\DateTime.h = 3rdparty\SkyCommon\DateTime.h
+		3rdparty\SkyApplication.h = 3rdparty\SkyApplication.h
+		3rdparty\SkyBuffer.h = 3rdparty\SkyBuffer.h
+		3rdparty\SkyConsole.h = 3rdparty\SkyConsole.h
+		3rdparty\SkyException.h = 3rdparty\SkyException.h
+		3rdparty\SkyServer.h = 3rdparty\SkyServer.h
+		3rdparty\SkyTime.h = 3rdparty\SkyTime.h
+		3rdparty\SkyUser.h = 3rdparty\SkyUser.h
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nlohmann", "nlohmann", "{59B45E91-4CBA-4C9C-8075-A9D2FD0A404B}"
@@ -56,7 +56,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{32AE8872-A63F-4E19-AAA2-FD8DA8D4115D} = {A6823FCF-815D-407E-8423-FCEC9A576D32}
 		{59B45E91-4CBA-4C9C-8075-A9D2FD0A404B} = {A6823FCF-815D-407E-8423-FCEC9A576D32}
 		{0B965619-1429-4EC6-BB95-A2D575479976} = {A6823FCF-815D-407E-8423-FCEC9A576D32}
 	EndGlobalSection

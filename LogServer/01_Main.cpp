@@ -1,7 +1,7 @@
 #include <api.h>
 
-SkyApp mApp;
-Console console;
+SkyApplication mApp;
+SkyConsole console;
 
 BOOL WINAPI ConsoleHandler( DWORD cEvent )
 {
@@ -34,5 +34,16 @@ int main( int argc, char **argv )
 
 	mApp.Init( "test", (WNDPROC)WndProc, (std::function<void()>)Logic );
 
-	return mApp.Run();
+	SkyBuffer* m;
+	try {
+		m = new SkyBuffer(100);
+		return mApp.Run();
+	}
+	catch ( SkyException& e )
+	{
+		console.error( "%s", e.what() );
+	}
+	exit( EXIT_FAILURE );
+
+
 }

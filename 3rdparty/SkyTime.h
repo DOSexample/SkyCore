@@ -1,9 +1,6 @@
 #ifndef SC_DATETIME_H
 #define SC_DATETIME_H
 
-#include <time.h>
-#include <stdio.h>
-
 #ifndef USE_TICK64
 #define USE_TICK64
 typedef DWORD64 TIMETICK;
@@ -35,7 +32,7 @@ inline static struct tm* GetDateTime()
 	return PRESENT_TIME;
 }
 
-namespace DateTime
+namespace SkyTime
 {
 
 inline static TIMETICK GetTickCount() { return GetTickCount64(); };
@@ -72,28 +69,28 @@ inline int Second() { return ( ( GetDateTime() == NULL ) ? 0 : ( PRESENT_TIME->t
 inline int ReturnNowDate( void )
 {
 	char tempString01[100];
-	sprintf( tempString01, "%04d%02d%02d", DateTime::Year(), DateTime::Month(), DateTime::Day() );
+	sprintf( tempString01, "%04d%02d%02d", Year(), Month(), Day() );
 	return atoi( tempString01 );
 }
 
 inline int ReturnNowTime()
 {
 	char tempString01[100];
-	sprintf( tempString01, "%02d%02d", DateTime::Hour(), DateTime::Minute() );
+	sprintf( tempString01, "%02d%02d", Hour(), Minute() );
 	return atoi( tempString01 );
 }
 
 inline int ReturnNowTimeWithSecond()
 {
 	char tempString01[100];
-	sprintf( tempString01, "%02d%02d%02d", DateTime::Hour(), DateTime::Minute(), DateTime::Second() );
+	sprintf( tempString01, "%02d%02d%02d", Hour(), Minute(), Second() );
 	return atoi( tempString01 );
 }
 
 inline char* NowDateTime()
 {
 	char tempString01[100];
-	sprintf( tempString01, "%04d-%02d-%02d %02d:%02d:%02d", DateTime::Year(), DateTime::Month(), DateTime::Day(), DateTime::Hour(), DateTime::Minute(), DateTime::Second() );
+	sprintf( tempString01, "%04d-%02d-%02d %02d:%02d:%02d", Year(), Month(), Day(), Hour(), Minute(), Second() );
 	return strdup( tempString01 );
 }
 
@@ -190,7 +187,7 @@ inline static int ReturnAddDate( int tPostDateValue, int tAddDayValue )
 	char tempString01[9];
 	int tPresentDateValue;
 	time_t tCountSeconds = time( NULL );
-	sprintf( tempString01, "%04d%02d%02d", DateTime::Year(), DateTime::Month(), DateTime::Day() );
+	sprintf( tempString01, "%04d%02d%02d", Year(), Month(), Day() );
 	tPresentDateValue = atoi( tempString01 );
 	if( tPostDateValue > tPresentDateValue )
 	{
@@ -198,7 +195,7 @@ inline static int ReturnAddDate( int tPostDateValue, int tAddDayValue )
 	}
 	time( &tCountSeconds );
 	tCountSeconds += (time_t)tAddDayValue * (time_t)24 * (time_t)3600;
-	if( DateTime::CustomDateTime( tCountSeconds ) == NULL )
+	if( CustomDateTime( tCountSeconds ) == NULL )
 	{
 		return -1;
 	}
@@ -209,7 +206,7 @@ inline static int ReturnAddDate( int tPostDateValue, int tAddDayValue )
 inline static int ReturnVoteDate( void )
 {
 	char tempString01[9];
-	sprintf( tempString01, "%04d%02d06", DateTime::Year(), DateTime::Month() );
+	sprintf( tempString01, "%04d%02d06", Year(), Month() );
 	return atoi( tempString01 );
 }
 

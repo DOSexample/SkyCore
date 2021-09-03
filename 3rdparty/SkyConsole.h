@@ -18,7 +18,7 @@ typedef BOOL(__stdcall* c_console_t)(DWORD);
 
 #define va_format( format, logType, color ) \
 	CONSOLE_LOCK(); \
-	sprintf( mConsoleBuffer, "[%04d-%02d-%02d %02d:%02d:%02d] [ ", DateTime::Year(), DateTime::Month(), DateTime::Day(), DateTime::Hour(), DateTime::Minute(), DateTime::Second() );\
+	sprintf( mConsoleBuffer, "[%04d-%02d-%02d %02d:%02d:%02d] [ ", SkyTime::Year(), SkyTime::Month(), SkyTime::Day(), SkyTime::Hour(), SkyTime::Minute(), SkyTime::Second() );\
 	std::cout << mConsoleBuffer << color << logType << rang::style::reset << std::flush;\
 	va_list args; \
 	va_start( args, format ); \
@@ -27,12 +27,12 @@ typedef BOOL(__stdcall* c_console_t)(DWORD);
 	std::cout << "] :: " << mConsoleBuffer << std::endl;\
 	CONSOLE_UNLOCK()
 
-class Console
+class SkyConsole
 {
 public:
 	char mConsoleBuffer[40960];
 
-	Console() : mConsoleBuffer()
+    SkyConsole() : mConsoleBuffer()
 	{
         BindStdHandlesToConsole();
 	}
@@ -48,6 +48,10 @@ public:
 	{
         va_format( fmt, "Log\t", CL_LightGreen );
 	}
+	void error( const char* fmt, ... )
+	{
+        va_format( fmt, "Error\t", CL_LightRed );
+	}
 
 private:
 	void BindStdHandlesToConsole()
@@ -58,7 +62,6 @@ private:
     
         // Redirect the CRT standard input, output, and error handles to the console
         (void)freopen( "CONIN$", "r", stdin );
-        (void)freopen( "CONOUT$", "w", stderr );
         (void)freopen( "CONOUT$", "w", stdout );
     
         // Note that there is no CONERR$ file
@@ -82,6 +85,6 @@ private:
     }
 
 };
-extern Console console;
+extern SkyConsole console;
 
 #endif //SC_CONSOLE_H
