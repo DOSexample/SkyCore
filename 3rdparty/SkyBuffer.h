@@ -4,15 +4,18 @@
 class SkyBuffer
 {
 private:
-	DWORD size;
+	DWORD alloc_size;
+	DWORD current_pos;
 	BYTE* data;
 public:
 
-	SkyBuffer() : data(0), size(0)
+	SkyBuffer() : data(0), alloc_size(0), current_pos(0)
 	{
 	}
 	~SkyBuffer()
 	{
+		this->alloc_size = 0;
+		this->current_pos = 0;
 		if( this->data )
 		{
 			GlobalFree( this->data );
@@ -21,59 +24,58 @@ public:
 
 	void Init( int size, const char* file = __FILE__, int line = __LINE__ )
 	{
-		this->size = 0;
+		alloc_size = size;
+		this->current_pos = 0;
 		this->data = (BYTE*)GlobalAlloc( GMEM_FIXED, size );
 		if( this->data == NULL )
 		{
-			throw SkyException( "%s -> %s:%d", __PRETTY_FUNCTION__, file, line );
+			throw SCTHROW_ARG( "%s", __PRETTY_FUNCTION__ );
 		}
 	}
 
-	DWORD Size() const { return this->size; }
-	
-	void IncreasePos( int size ) { this->size += size; }
+	DWORD Size() const { return this->current_pos; }
 
-	BYTE* Get() { return data; }
+	BYTE* Get( DWORD pos ) { return pos >= this->alloc_size ? NULL : data ? &data[pos] : NULL; }
+	
+	SkyBuffer& Add( void* value, int size )
+	{
+		CopyMemory( Get(this->current_pos), value, size );
+		this->current_pos += size;
+		return *this;
+	}
+
+
+	void Move( int position, int moveSize )
+	{
+		MoveMemory( data, &data[position], moveSize );
+		this->current_pos -= moveSize;
+	}
+	void Set( DWORD position ) { this->current_pos = position; }
 
 	SkyBuffer& Header( int value )
 	{
-		this->size = 0;
-		this->data[0] = value;
-		this->IncreasePos( 1 );
-		return *this;
+		this->current_pos = 0;
+		return this->Add( &value, 1 );
 	}
 
 	template<typename T>
 	SkyBuffer& Pack( T value )
 	{
-		int s = sizeof(T);
-		CopyMemory( &this->data[this->size], &value, s );
-		this->IncreasePos( s );
-		return *this;
+		int size = sizeof(T);
+		return this->Add( &value, size );
 	}
 
 	template<typename T>
 	SkyBuffer& Pack( T* value, int size )
 	{
-		CopyMemory( &this->data[this->size], value, size );
-		this->IncreasePos( size );
-		return *this;
+		return this->Add( value, size );
 	}
 	
 	template<typename T>
 	SkyBuffer& Pack( T** value, int size )
 	{
-		CopyMemory( &this->data[this->size], value, size );
-		this->IncreasePos( size );
-		return *this;
+		return this->Add( value, size );
 	}
-
-	void Move( int position, int moveSize )
-	{
-		MoveMemory( data, &data[position], moveSize );
-		this->size -= moveSize;
-	}
-	void SetPosition( int position ) { this->size = position; }
 };
 
 #endif //SC_BUFFER_H

@@ -39,11 +39,22 @@
 		"maxsend": 40960,
 		"maxtransfer": 100000
 	},
+	"web_server": {
+		"ip": "127.0.0.1",
+		"port": 10004,
+		"type": "tcp",
+		"logic": 3000,
+		"maxuser": 350,
+		"maxrecv": 20480,
+		"maxsend": 40960,
+		"maxtransfer": 100000,
+		"dir":  "./www"
+	},
 	"login_server": {
 		"ip": "127.0.0.1",
 		"port": 11091,
 		"type": "tcp",
-		"logic": 5000,
+		"logic": 1000,
 		"maxuser": 1000,
 		"maxrecv": 20480,
 		"maxsend": 40960,
@@ -51,11 +62,11 @@
 	},
 	"zone_server": {
 		"ip": "127.0.0.1",
-		"port": 11091,
+		"port": 30000,
 		"type": "tcp",
 		"logic": 500,
 		"maxuser": 1000,
-		"number": 0,
+		"number": 1,
 		"maxrecv": 20480,
 		"maxsend": 409600,
 		"maxtransfer": 100000

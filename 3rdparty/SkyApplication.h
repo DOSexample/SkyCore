@@ -11,7 +11,7 @@ public:
 		RegisterClassEx( &mSERVER_INFO.wCls );
 		mSERVER_INFO.hWnd = CreateWindowEx( 0, name.c_str(), name.c_str(), WS_DISABLED, 0, 0, 0, 0, HWND_DESKTOP, NULL, NULL, NULL );
 		if( !mSERVER_INFO.hWnd )
-			throw "!CreateWindowEx()";
+			throw SCTHROW_ARG( "!CreateWindowEx()" );
 	}
 	int Run( SERVER_INFO& mSERVER_INFO )
 	{

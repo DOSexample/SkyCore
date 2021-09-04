@@ -21,9 +21,6 @@
 #endif
 
 
-typedef std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> wnd_proc_t;
-
-
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -35,14 +32,15 @@ using json = nlohmann::json;
 #define DEBUG() console.log( "%s:%s:%d", strrchr(__FILE__,FILE_SPLIT_FLAG)+1, __FUNCTION__, __LINE__ )
 
 
-#define SERVER_TYPE_NUM			7
+#define SERVER_TYPE_NUM			8
 #define LOG_SERVER				0
 #define CENTER_SERVER			1
 #define EXTRA_SERVER			2
 #define PLAYUSER_SERVER			3
 #define LOGIN_SERVER			4
 #define ZONE_SERVER				5
-#define MAIN_SERVER				6
+#define WEB_SERVER				6
+#define MAIN_SERVER				7
 
 #ifndef USE_TICK64
 #define USE_TICK64
@@ -61,28 +59,36 @@ typedef struct {
 	int MaxSend[SERVER_TYPE_NUM];
 	int MaxTransfer[SERVER_TYPE_NUM];
 
+	int mServerNumber;
 	int mMaxUserNum;
 	int mMaxRecvSize;
 	int mMaxSendSize;
 	int mMaxTransferSize;
 
+	std::string AppName;
 	WNDCLASSEX wCls;
 	HWND hWnd;
 	TIMETICK mTimeLogic;
 	TIMETICK mBaseTickCountForLogic;
 	TIMETICK mPostTickCountForLogic;
 	BOOL mCheckLogicFlag;
+
+	std::string WebDir;
 } SERVER_INFO;
 extern SERVER_INFO mSERVER_INFO;
 
+#ifdef SKYCORE_WEB
+#include <httplib/httplib.h>
+#endif
 
-#include <SkyException.h>
 #include <SkyTime.h>
-#include <SkyApplication.h>
 #include <SkyConsole.h>
+#include <SkyException.h>
+#include <SkyApplication.h>
 #include <SkyBuffer.h>
 
 #include <SkyUser.h>
+#include <SkyWork.h>
 #include <SkyServer.h>
 
 

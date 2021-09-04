@@ -29,6 +29,8 @@ public:
 	TIMETICK mRegisterTime;
 	TIMETICK mUseTime;
 
+	int mPlatform;
+
 public:
 
 	int mIndex;
@@ -49,17 +51,16 @@ public:
 		}
 		if ( mTotalSendSize < 1 )
 		{
-			mTotalSendSize = 0;
-			mBUFFER_FOR_SEND.SetPosition( 0 );
+			mBUFFER_FOR_SEND.Set( mTotalSendSize );
 			return;
 		}
-		if ( mBUFFER_FOR_SEND.Get() == NULL )
+		if ( mBUFFER_FOR_SEND.Get(0) == NULL )
 		{
 			return;
 		}
 		if ( tCheckBuffer && tBuffer )
 		{
-			mBUFFER_FOR_SEND.Pack( tBuffer->Get(), tBuffer->Size() );
+			mBUFFER_FOR_SEND.Pack( tBuffer->Get(mTotalSendSize), tBuffer->Size() );
 			mTotalSendSize += tBuffer->Size();
 		}
 
@@ -68,7 +69,7 @@ public:
 
 		while ( mTotalSendSize > 0 )
 		{
-			tSendValue01 = send( mSocket, (const char*)&mBUFFER_FOR_SEND.Get()[0], mTotalSendSize, 0 );
+			tSendValue01 = send( mSocket, (const char*)mBUFFER_FOR_SEND.Get(0), mTotalSendSize, 0 );
 			if ( tSendValue01 <= 0 )
 			{
 				if ( tSendValue01 == 0 )

@@ -6,6 +6,7 @@ mSERVER_INFO.IP[##name##_SERVER] = j[#name2##"_server"]["ip"].get<std::string>()
 mSERVER_INFO.Port[##name##_SERVER] = j[#name2##"_server"]["port"].get<int>(); \
 mSERVER_INFO.Type[##name##_SERVER] = IsTCP( toupper( j[#name2##"_server"]["type"].get<std::string>() ) ); \
 mSERVER_INFO.Logic[##name##_SERVER] = j[#name2##"_server"]["logic"].get<int>(); \
+mSERVER_INFO.MaxUser[##name##_SERVER] = j[#name2##"_server"]["maxuser"].get<int>(); \
 mSERVER_INFO.MaxRecv[##name##_SERVER] = j[#name2##"_server"]["maxrecv"].get<int>(); \
 mSERVER_INFO.MaxSend[##name##_SERVER] = j[#name2##"_server"]["maxsend"].get<int>(); \
 mSERVER_INFO.MaxTransfer[##name##_SERVER] = j[#name2##"_server"]["maxtransfer"].get<int>();
@@ -15,6 +16,7 @@ mSERVER_INFO.IP[MAIN_SERVER] = mSERVER_INFO.IP[##name##_SERVER]; \
 mSERVER_INFO.Port[MAIN_SERVER] = mSERVER_INFO.Port[##name##_SERVER]; \
 mSERVER_INFO.Type[MAIN_SERVER] = mSERVER_INFO.Type[##name##_SERVER]; \
 mSERVER_INFO.mTimeLogic = (TIMETICK)mSERVER_INFO.Logic[##name##_SERVER]; \
+mSERVER_INFO.mMaxUserNum = mSERVER_INFO.MaxUser[##name##_SERVER]; \
 mSERVER_INFO.mMaxRecvSize = mSERVER_INFO.MaxRecv[##name##_SERVER]; \
 mSERVER_INFO.mMaxSendSize = mSERVER_INFO.MaxSend[##name##_SERVER]; \
 mSERVER_INFO.mMaxTransferSize = mSERVER_INFO.MaxTransfer[##name##_SERVER];
@@ -24,16 +26,22 @@ SkyApplication mAPP;
 SkyConsole console;
 SkyUserMap mUSER;
 SkyServer gServer;
+SkyWork mWORK;
 
-BOOL WINAPI ConsoleHandler(DWORD cEvent)
+BOOL WINAPI ConsoleHandler( DWORD CtrlType )
 {
-	console.log("%s:%d", __PRETTY_FUNCTION__, cEvent);
-	if (cEvent == CTRL_C_EVENT)
+	switch ( CtrlType )
 	{
-		console.error("CRTL + C");
-		SendMessage(mSERVER_INFO.hWnd, WM_DESTROY, 0, 0);
+	case CTRL_C_EVENT:
+		console.error( "CTRL_C_EVENT" );
+		SendMessage( mSERVER_INFO.hWnd, WM_DESTROY, 0, 0 );
+		return TRUE;
+	case CTRL_CLOSE_EVENT:
+		console.error( "CTRL_CLOSE_EVENT" );
+		SendMessage( mSERVER_INFO.hWnd, WM_DESTROY, 0, 0 );
 		return TRUE;
 	}
+	console.log( "%s:%d", __PRETTY_FUNCTION__, CtrlType );
 	return FALSE;
 }
 
@@ -52,7 +60,6 @@ LRESULT WndProc( HWND hWnd, UINT nMss, WPARAM wPrm, LPARAM lPrm )
 	case WM_TIMER:
 		return gServer.OnTimer();
 	case WM_NETWORK_MESSAGE_1:
-		gServer.OnTimer();
 		return gServer.OnProc( hWnd, wPrm, lPrm );
 	}
 	return DefWindowProc( hWnd, nMss, wPrm, lPrm );
@@ -91,8 +98,7 @@ void LoadConfig( const char* path, SERVER_INFO &mSERVER_INFO )
 	}
 	catch ( std::exception& e )
 	{
-		console.error( e.what() );
-		throw TSkyException();
+		throw SCTHROW_ARG( e.what() );
 	}
 	std::getline( std::ifstream( path ), str, '\0' );
 	console.log( str.c_str() );
@@ -105,74 +111,88 @@ void LoadConfig( const char* path, SERVER_INFO &mSERVER_INFO )
 		DEFAULT_LOAD( PLAYUSER, playuser );
 		DEFAULT_LOAD( LOGIN, login );
 		DEFAULT_LOAD( ZONE, zone );
+		DEFAULT_LOAD( WEB, web );
+		#ifdef SKYCORE_WEB
+		mSERVER_INFO.WebDir = j["web_server"]["dir"].get<std::string>();
+		#endif
 	}
 	catch ( json::exception& e )
 	{
-		console.error( e.what() );
-		throw TSkyException();
+		throw SCTHROW_ARG( e.what() );
 	}
 }
 
 int main( int argc, char **argv )
 {
-	std::string appname = "";
-
-	console.init( ConsoleHandler );
-
-	//if( argc < 2 )
-	//{
-	// console.error( "please run with arguments log or center or extra or playuser or zone"  );
-	// return;
-	//}
-	//
+	console.init();
 
 	try
 	{
+		mSERVER_INFO.mServerNumber = 0;
 		LoadConfig( "./Config.json", mSERVER_INFO );
 		
 		#ifdef SKYCORE_LOG
-		appname = "LogServer";
+		mSERVER_INFO.AppName = "LogServer";
 		SWAP_INFO( LOG );
 		#endif
 		
 		#ifdef SKYCORE_CENTER
-		appname = "CenterServer";
+		mSERVER_INFO.AppName = "CenterServer";
 		SWAP_INFO( CENTER );
 		#endif
 		
 		#ifdef SKYCORE_EXTRA
-		appname = "ExtraServer";
+		mSERVER_INFO.AppName = "ExtraServer";
 		SWAP_INFO( EXTRA );
 		#endif
 
 		#ifdef SKYCORE_LOGIN
-		appname =  "LoginServer";
+		mSERVER_INFO.AppName =  "LoginServer";
 		SWAP_INFO( LOGIN );
 		#endif
 		
 		#ifdef SKYCORE_PLAYUSER
-		appname = "PlayUserServer";
+		mSERVER_INFO.AppName = "PlayUserServer";
 		SWAP_INFO( PLAYUSER );
 		#endif
 		
 		#ifdef SKYCORE_ZONE
-		//	if( argc < 3 )
+		//	if( argc < 2 )
 		//	{
-		//		console.error( "please run with arguments zone and zonnumber\n ex. zone 1 = run zone number 1"  );
+		//		console.error( "please run with arguments zonnumber\n ex. zoneserver.exe 1 = run zone number 1"  );
 		//		return 0;
 		//	}
-		appname = "ZoneServer";
+		mSERVER_INFO.AppName = "ZoneServer";
 		SWAP_INFO( ZONE );
 		#endif
 
-		mAPP.Init( mSERVER_INFO, appname, (WNDPROC)WndProc );
-		gServer.Init();//SOMAXCONN
+		#ifdef SKYCORE_WEB
+		mSERVER_INFO.AppName = "WebServer";
+		SWAP_INFO( WEB );
+		#endif
+
+		mAPP.Init( mSERVER_INFO, mSERVER_INFO.AppName, (WNDPROC)WndProc );
+
+		#ifdef SKYCORE_WEB
+			gServer.InitWeb();
+		#else
+			gServer.Init();//SOMAXCONN
+		#endif
+
 		return mAPP.Run( mSERVER_INFO );
 	}
 	catch ( SkyException& e )
 	{
-		console.error( "%s", e.what() );
-		Sleep( 2000 );
+		console.error( "SkyException :: %s", e.what() );
 	}
+	catch ( std::system_error& e )
+	{
+		console.error( "std::system_error :: %s", e.what() );
+	}
+	catch ( std::exception& e )
+	{
+		console.error( "std::exception :: %s", e.what() );
+	}
+	Sleep( 2000 );
 	exit( EXIT_FAILURE );
 }

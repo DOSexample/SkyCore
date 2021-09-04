@@ -18,8 +18,5 @@
     <ClCompile Include="..\3rdparty\01_Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\3rdparty\04_Work01.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

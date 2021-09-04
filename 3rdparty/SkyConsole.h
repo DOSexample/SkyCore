@@ -5,7 +5,7 @@
 #define CL_LightGreen rang::fgB::green
 #define CL_LightRed rang::fgB::red
 #define CL_LightYellow rang::fgB::yellow
-typedef BOOL(__stdcall* c_console_t)(DWORD);
+extern BOOL WINAPI ConsoleHandler( DWORD CtrlType );
 
 //#ifdef USE_LOCK
 //CMutex mConsoleLock;
@@ -36,9 +36,9 @@ public:
 	{
         BindStdHandlesToConsole();
 	}
-    void init( c_console_t win32ConsoleCallback )
+    void init()
     {
-        if ( !SetConsoleCtrlHandler( win32ConsoleCallback, TRUE ) )
+        if ( !SetConsoleCtrlHandler( ConsoleHandler, TRUE ) )
 	    {
 		    MessageBox( NULL, "!SetConsoleCtrlHandler()", "ERROR", ( MB_OK | MB_ICONERROR ) );
 		    exit(0);
