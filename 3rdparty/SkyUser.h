@@ -39,7 +39,7 @@ public:
 	{
 		mIndex = tIndex;
 		mBUFFER_FOR_SEND.Init( tSendSize );
-		mBUFFER_FOR_RECV.Init( tSendSize );
+		mBUFFER_FOR_RECV.Init( tRecvSize );
 		Set( UINIT, INVALID_SOCKET, "0.0.0.0" );
 	}
 
