@@ -104,7 +104,7 @@ public:
 			return "0/0";
 		}
 		int i = 0;
-		for( auto it : mUSER )
+		for( auto &it : mUSER )
 		{
 			if ( it->mCheckConnectState )
 			{
@@ -164,7 +164,7 @@ public:
 
 	LRESULT Free()
 	{
-		for ( auto it : mUSER )
+		for ( auto &it : mUSER )
 		{
 			it->Quit();
 		}
@@ -268,7 +268,7 @@ public:
 	SkyUser* GetUser( WPARAM wPrm )
 	{
 		SkyUser* tUSER = NULL;
-		for ( auto it : mUSER )
+		for ( auto &it : mUSER )
 		{
 			if ( it->mCheckConnectState && it->mSocket == (WPARAM)wPrm )
 			{
@@ -294,7 +294,7 @@ public:
 			DEBUG();
 			return;
 		}
-		for ( auto it : mUSER )
+		for ( auto &it : mUSER )
 		{
 			if ( !it->mCheckConnectState )
 			{
